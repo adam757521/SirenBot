@@ -340,8 +340,8 @@ async def updateandrestart(ctx):
         os.system('git pull')
         await ctx.send("Bot restarting...")
 
-        await self.bot.change_presence(status=discord.Status.offline)
-        await self.bot.close()
+        await bot.change_presence(status=discord.Status.offline)
+        await bot.close()
 
 
 @bot.command()
