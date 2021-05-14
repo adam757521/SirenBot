@@ -104,6 +104,8 @@ async def on_ready():
     print(bot.user)
     print("----------------------------")
 
+    bot.uptime = time.time()
+
     handle_sirens.start()
     change_presence.start()
 
@@ -207,6 +209,28 @@ async def on_message(message):
     setup(message.guild.id)
 
     await bot.process_commands(message)
+
+
+@bot.command()
+async def info(ctx):
+    embed = discord.Embed(
+        title="Status | SirenBot",
+        description="Shows information about SirenBot and siren activity.",
+        color=0xff0000
+    )
+
+    siren_json = await get_sirens()
+    siren_city  = collections.Counter(x["data"] for x in siren_json)
+    last_siren_city_date = [x for x in siren_json if x["data"] == siren_city][0]["alertDate"]
+
+    embed.add_field(name="🚨 Last Siren",
+                    value=f"**Date:** {siren_json['alertDate']}, **Location:** {siren_json['data']}",
+                    inline=False)
+
+    embed.add_field(name="📜 City With The Most Sirens (last 24 hours)",
+                    value=f"**Name:** {siren_city}, **Last Siren:** {last_siren_city_date}")
+
+    await ctx.send(embed=embed)
 
 
 @bot.command()
