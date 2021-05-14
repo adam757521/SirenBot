@@ -334,7 +334,7 @@ async def testsiren(ctx):
 
 
 @bot.command()
-async def updateandrestart(self, ctx):
+async def updateandrestart(ctx):
     if ctx.author.id == 720149174468870205:
         await ctx.send("Bot updating...")
         os.system('git pull')
