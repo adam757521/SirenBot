@@ -1,4 +1,5 @@
 import asyncio
+import os
 import random
 import time
 from datetime import datetime, timedelta
@@ -306,6 +307,17 @@ async def testsiren(ctx):
         await message.add_reaction('🟥')
     else:
         raise commands.BadArgument("The siren log assigned channel is not found.")
+
+
+@bot.command()
+async def updateandrestart(self, ctx):
+    if ctx.author.id == 720149174468870205:
+        await ctx.send("Bot updating...")
+        os.system('git pull')
+        await ctx.send("Bot restarting...")
+
+        await self.bot.change_presence(status=discord.Status.offline)
+        await self.bot.close()
 
 
 @bot.command()
