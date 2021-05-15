@@ -9,6 +9,7 @@ import discord
 from discord.ext import commands, tasks
 import json
 import sqlite3
+import collections
 
 bot = commands.Bot(command_prefix="?", intents=discord.Intents.all())
 bot.remove_command('help')
@@ -220,15 +221,33 @@ async def info(ctx):
     )
 
     siren_json = await get_sirens()
-    siren_city  = collections.Counter(x["data"] for x in siren_json)
-    last_siren_city_date = [x for x in siren_json if x["data"] == siren_city][0]["alertDate"]
+    siren_city = collections.Counter([x["data"] for x in siren_json]).most_common()[0][0]
+    last_siren_city = [x for x in siren_json if x["data"] == siren_city][0]
+    uptime = datetime.fromtimestamp(bot.uptime).strftime("%Y-%m-%d, %H:%M:%S")
 
-    embed.add_field(name="🚨 Last Siren",
-                    value=f"**Date:** {siren_json['alertDate']}, **Location:** {siren_json['data']}",
-                    inline=False)
+    embed.add_field(
+        name="⏲️ SirenBot Uptime",
+        value=f"**Sirebot Has Been Up Since:** {uptime}",
+        inline=False
+    )
 
-    embed.add_field(name="📜 City With The Most Sirens (last 24 hours)",
-                    value=f"**Name:** {siren_city}, **Last Siren:** {last_siren_city_date}")
+    embed.add_field(
+        name="🚨 Last Siren",
+        value=f"**Date:** {siren_json[0]['alertDate']}, **Location:** {siren_json[0]['data']}",
+        inline=False
+    )
+
+    embed.add_field(
+        name="📜 City With The Most Sirens (last 24 hours)",
+        value=f"**Name:** {siren_city}, **Last Siren:** {last_siren_city['alertDate']}",
+        inline=False
+    )
+
+    embed.add_field(
+        name="🚀 Number of Sirens (last 24 hours)",
+        value=len(siren_json),
+        inline=False
+    )
 
     await ctx.send(embed=embed)
 
@@ -247,6 +266,7 @@ async def help(ctx):
     embed.add_field(name="🧪 ?testsiren", value="Sends a test siren alert to the siren log assigned channel.", inline=False)
     embed.add_field(name="📜 ?history [city]", value="Shows a 24 hour siren history of the specified city.", inline=False)
     embed.add_field(name="⚙️ ?settings", value="Shows a list of the current server's settings.", inline=False)
+    embed.add_field(name="ℹ️ ?info", value="Shows information about SirenBot and siren activity.", inline=False)
     # add cities certain alert
 
     await ctx.send(embed=embed)
