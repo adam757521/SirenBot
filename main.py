@@ -207,7 +207,8 @@ async def on_message(message):
     if bot.user in message.mentions:
         await message.channel.send("Did you forget my prefix? its `?`!")
 
-    setup(message.guild.id)
+    if message.guild:
+        setup(message.guild.id)
 
     await bot.process_commands(message)
 
