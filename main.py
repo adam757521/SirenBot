@@ -379,7 +379,7 @@ async def updateandrestart(ctx):
 @bot.command()
 @commands.guild_only()
 async def history(ctx, *, city=None):
-    updated_json = [x for x in await get_sirens_translated() if city in x["name_en"]] if city is not None else await get_sirens_translated()
+    updated_json = [x for x in await get_sirens_translated() if city.lower() in x["name_en"].lower()] if city is not None else await get_sirens_translated()
 
     if not updated_json:
         description = f"There were no sirens in **{city.title()}** in the last 24 hours." if city is not None \
