@@ -366,6 +366,7 @@ async def updateandrestart(ctx):
 
 
 @bot.command()
+@commands.guild_only()
 async def history(ctx, *, city=None):
     updated_json = [x for x in await get_sirens() if city in x["data"]] if city is not None else await get_sirens()
 
