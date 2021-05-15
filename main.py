@@ -44,7 +44,7 @@ async def change_presence():
         pass
 
 
-@tasks.loop(seconds=5)
+@tasks.loop(seconds=2.5)
 async def handle_sirens():
     global last_sent_timestamp
 
