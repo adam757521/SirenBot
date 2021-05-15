@@ -13,7 +13,7 @@ import collections
 
 bot = commands.Bot(command_prefix="?", intents=discord.Intents.all())
 bot.remove_command('help')
-last_sent_timestamp = time.time()
+last_cities = []
 
 with open('data/cities.json', encoding='utf-8-sig') as file:
     cities_data = json.load(file)
@@ -34,6 +34,14 @@ async def get_sirens_translated():
         return [{**x, **find_location_data(x['data'])[0]} for x in await resp.json()]
 
 
+async def get_current_sirens():
+    async with aiohttp.ClientSession() as requester:
+        resp = await requester.get("https://www.oref.org.il/WarningMessages/Alert/alerts.json",
+                                   headers={"X-Requested-With": "XMLHttpRequest", "Referer": "https://www.oref.org.il/"})
+
+        return await resp.text()
+
+
 @tasks.loop(seconds=20)
 async def change_presence():
     watching_statuses = [f"{len(bot.guilds)} servers! | ?help", f"{len(await get_sirens_translated())} Hamas rockets! | ?help"]
@@ -46,13 +54,20 @@ async def change_presence():
 
 @tasks.loop(seconds=2.5)
 async def handle_sirens():
-    global last_sent_timestamp
+    global last_cities
 
-    updated_json = [x for x in await get_sirens_translated() if convert_date(x["alertDate"]) > last_sent_timestamp]
+    website_content = get_current_sirens()
+    filtered_cities = []
+    if website_content != "":
+        cities = json.loads(website_content)["data"]
+        filtered_cities = [city for city in cities if city not in last_cities]
+        last_cities = cities
+    else:
+        last_cities = []
 
-    if updated_json:
+    if filtered_cities:
+        updated_json = [find_location_data(x) for x in filtered_cities]
         location_string = '\n'.join([f"{x['name_en']} ({x['countdown']} seconds)" for x in updated_json])
-        last_sent_timestamp = convert_date(updated_json[0]["alertDate"])
 
         embed = discord.Embed(
             title="Siren Alert!",
