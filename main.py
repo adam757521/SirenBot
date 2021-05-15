@@ -15,6 +15,9 @@ bot = commands.Bot(command_prefix="?", intents=discord.Intents.all())
 bot.remove_command('help')
 last_sent_timestamp = time.time()
 
+with open('data/cities.json', encoding='utf-8-sig') as file:
+    cities_data = json.load(file)
+
 
 def convert_date(date):
     return time.mktime(datetime.strptime(date, "%Y-%m-%d %H:%M:%S").timetuple())
@@ -43,7 +46,12 @@ async def handle_sirens():
     updated_json = [x for x in await get_sirens() if convert_date(x["alertDate"]) > last_sent_timestamp]
 
     if updated_json:
-        location_string = "\n".join([x["data"] for x in updated_json])
+        locations = [x['data'] for x in updated_json]
+        location_string = ""
+        for location in locations:
+            location_data = [x for x in cities_data if x["name"] == location]
+            location_string += f"{location} ({location_data['countdown']} seconds)"
+
         last_sent_timestamp = convert_date(updated_json[0]["alertDate"])
 
         embed = discord.Embed(
