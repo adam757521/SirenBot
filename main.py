@@ -67,13 +67,7 @@ async def handle_sirens():
 
     if filtered_cities:
         updated_json = [find_location_data(x)[0] for x in filtered_cities]
-        location_string = '\n'.join([f"{x['name_en']} ({x['countdown']} seconds)" for x in updated_json])
-
-        embed = discord.Embed(
-            title="Siren Alert!",
-            description=f"**Locations:** {location_string}",
-            color=0xff0000
-        )
+        locations = [f"{x['name_en']} ({x['countdown']} seconds)" for x in updated_json]
 
         for guild in bot.guilds:
             cursor = bot.sqlite.cursor()
@@ -91,6 +85,15 @@ async def handle_sirens():
 
             channel = guild.get_channel(int(value[0]))
             if channel is not None:
+                location_string = "\n".join(locations) if guild.id != 769617850511392798 \
+                    else "\n".join([x for x in locations if x == "Holon"])
+
+                embed = discord.Embed(
+                    title="Siren Alert!",
+                    description=f"**Locations:** {location_string}",
+                    color=0xff0000
+                )
+
                 message = await channel.send(embed=embed)
 
                 await message.add_reaction('🟥')
