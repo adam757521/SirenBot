@@ -222,8 +222,8 @@ async def info(ctx):
     )
 
     siren_json = await get_sirens()
-    siren_city = collections.Counter([x["data"] for x in siren_json]).most_common()[0][0]
-    last_siren_city = [x for x in siren_json if x["data"] == siren_city][0]
+    siren_city = collections.Counter([x["data"] for x in siren_json]).most_common()[0]
+    last_siren_city = [x for x in siren_json if x["data"] == siren_city[0]][0]
     uptime = datetime.fromtimestamp(bot.uptime).strftime("%Y-%m-%d, %H:%M:%S")
 
     embed.add_field(
@@ -240,7 +240,7 @@ async def info(ctx):
 
     embed.add_field(
         name="📜 City With The Most Sirens (last 24 hours)",
-        value=f"**Name:** {siren_city}, **Last Siren:** {last_siren_city['alertDate']}",
+        value=f"**Name:** {siren_city}, **Last Siren:** {last_siren_city['alertDate']}, **Number of Sirens:** {siren[1]}",
         inline=False
     )
 
