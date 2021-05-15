@@ -273,12 +273,29 @@ async def help(ctx):
     )
 
     embed.set_thumbnail(url=bot.user.avatar_url)
-    embed.add_field(name="ℹ️ ?help", value="Shows a list of usable commands.", inline=False)
-    embed.add_field(name="🚨 ?setsiren [channel]", value="Assigns the siren log to the specified channel.", inline=False)
-    embed.add_field(name="🧪 ?testsiren", value="Sends a test siren alert to the siren log assigned channel.", inline=False)
-    embed.add_field(name="📜 ?history [city]", value="Shows a 24 hour siren history of the specified city.", inline=False)
-    embed.add_field(name="⚙️ ?settings", value="Shows a list of the current server's settings.", inline=False)
-    embed.add_field(name="ℹ️ ?info", value="Shows information about SirenBot and siren activity.", inline=False)
+    embed.add_field(name="ℹ️ ?help",
+                    value="Shows a list of usable commands.",
+                    inline=False)
+
+    embed.add_field(name="🚨 ?setsiren [channel]",
+                    value="Assigns the siren log to the specified channel.",
+                    inline=False)
+
+    embed.add_field(name="🧪 ?testsiren",
+                    value="Sends a test siren alert to the siren log assigned channel.",
+                    inline=False)
+
+    embed.add_field(name="📜 ?history [city]",
+                    value="Shows a 24 hour siren history of the specified city.",
+                    inline=False)
+
+    embed.add_field(name="⚙️ ?settings",
+                    value="Shows a list of the current server's settings.",
+                    inline=False)
+
+    embed.add_field(name="ℹ️ ?info",
+                    value="Shows information about SirenBot and siren activity.",
+                    inline=False)
     # add cities certain alert
 
     await ctx.send(embed=embed)
