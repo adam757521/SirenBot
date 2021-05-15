@@ -56,7 +56,7 @@ async def change_presence():
 async def handle_sirens():
     global last_cities
 
-    website_content = get_current_sirens()
+    website_content = await get_current_sirens()
     filtered_cities = []
     if website_content != "":
         cities = json.loads(website_content)["data"]
@@ -66,7 +66,7 @@ async def handle_sirens():
         last_cities = []
 
     if filtered_cities:
-        updated_json = [find_location_data(x) for x in filtered_cities]
+        updated_json = [find_location_data(x)[0] for x in filtered_cities]
         location_string = '\n'.join([f"{x['name_en']} ({x['countdown']} seconds)" for x in updated_json])
 
         embed = discord.Embed(
