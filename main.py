@@ -240,7 +240,7 @@ async def info(ctx):
 
     embed.add_field(
         name="📜 City With The Most Sirens (last 24 hours)",
-        value=f"**Name:** {siren_city}, **Last Siren:** {last_siren_city['alertDate']}, **Number of Sirens:** {siren[1]}",
+        value=f"**Name:** {siren_city}, **Last Siren:** {last_siren_city['alertDate']}, **Number of Sirens:** {siren_city[1]}",
         inline=False
     )
 
