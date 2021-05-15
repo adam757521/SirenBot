@@ -50,7 +50,7 @@ async def handle_sirens():
         location_string = ""
         for location in locations:
             location_data = [x for x in cities_data if x["name"] == location]
-            location_string += f"{location} ({location_data['countdown']} seconds)"
+            location_string += f"{location} ({location_data['countdown']} seconds)\n"
 
         last_sent_timestamp = convert_date(updated_json[0]["alertDate"])
 
