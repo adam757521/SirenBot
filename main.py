@@ -27,15 +27,16 @@ def find_location_data(location):
     return [x for x in cities_data if x["value"] == location]
 
 
-async def get_sirens():
+async def get_sirens_translated():
     async with aiohttp.ClientSession() as requester:
         resp = await requester.get("https://www.oref.org.il/WarningMessages/History/AlertsHistory.json")
-        return await resp.json()
+
+        return [{**x, **find_location_data(x['data'])[0]} for x in await resp.json()]
 
 
 @tasks.loop(seconds=20)
 async def change_presence():
-    watching_statuses = [f"{len(bot.guilds)} servers! | ?help", f"{len(await get_sirens())} Hamas rockets! | ?help"]
+    watching_statuses = [f"{len(bot.guilds)} servers! | ?help", f"{len(await get_sirens_translated())} Hamas rockets! | ?help"]
 
     try:
         await bot.change_presence(activity=discord.Activity(name=random.choice(watching_statuses), type=3))
@@ -47,15 +48,10 @@ async def change_presence():
 async def handle_sirens():
     global last_sent_timestamp
 
-    updated_json = [x for x in await get_sirens() if convert_date(x["alertDate"]) > last_sent_timestamp]
+    updated_json = [x for x in await get_sirens_translated() if convert_date(x["alertDate"]) > last_sent_timestamp]
 
     if updated_json:
-        locations = [x['data'] for x in updated_json]
-        location_string = ""
-        for location in locations:
-            location_data = find_location_data(location)
-            location_string += f"{location_data[0]['name_en']} ({location_data[0]['countdown']} seconds)\n"
-
+        location_string = '\n'.join([f"{x['name_en']} ({x['countdown']} seconds)" for x in updated_json])
         last_sent_timestamp = convert_date(updated_json[0]["alertDate"])
 
         embed = discord.Embed(
@@ -233,12 +229,10 @@ async def info(ctx):
         color=0xff0000
     )
 
-    siren_json = await get_sirens()
+    siren_json = await get_sirens_translated()
 
-    most_siren_city = collections.Counter([x["data"] for x in siren_json]).most_common()[0]
-    last_siren_city_most = [x for x in siren_json if x["data"] == most_siren_city[0]][0]
-    most_siren_city_data = find_location_data(last_siren_city_most['data'])
-    last_siren_city_data = find_location_data(siren_json[0]['data'])
+    most_siren_city = collections.Counter([x["name_en"] for x in siren_json]).most_common()[0]
+    last_siren_city_most = [x for x in siren_json if x["name_en"] == most_siren_city[0]][0]
 
     uptime = datetime.fromtimestamp(bot.uptime).strftime("%Y-%m-%d, %H:%M:%S")
 
@@ -250,13 +244,13 @@ async def info(ctx):
 
     embed.add_field(
         name="🚨 Last Siren",
-        value=f"**Date:** {siren_json[0]['alertDate']}, **Location:** {last_siren_city_data[0]['name_en']}",
+        value=f"**Date:** {siren_json[0]['alertDate']}, **Location:** {siren_json[0]['name_en']}",
         inline=False
     )
 
     embed.add_field(
         name="📜 City With The Most Sirens (last 24 hours)",
-        value=f"**Location:** {most_siren_city_data[0]['name_en']}, "
+        value=f"**Location:** {last_siren_city_most['name_en']}, "
               f"**Last Siren:** {last_siren_city_most['alertDate']}, **Number of Sirens:** {most_siren_city[1]}",
         inline=False
     )
@@ -385,7 +379,7 @@ async def updateandrestart(ctx):
 @bot.command()
 @commands.guild_only()
 async def history(ctx, *, city=None):
-    updated_json = [x for x in await get_sirens() if city in x["data"]] if city is not None else await get_sirens()
+    updated_json = [x for x in await get_sirens_translated() if city in x["name_en"]] if city is not None else await get_sirens_translated()
 
     if not updated_json:
         description = f"There were no sirens in **{city.title()}** in the last 24 hours." if city is not None \
@@ -420,7 +414,7 @@ async def history(ctx, *, city=None):
         embed_index = 0
         for index, siren in enumerate(updated_json):
             embeds[embed_index].add_field(name=f"**{index + 1}.**",
-                                          value=f"Date: {siren['alertDate']}, Location: {siren['data']}",
+                                          value=f"Date: {siren['alertDate']}, Location: {siren['name_en']}",
                                           inline=False)
 
             if (index + 1) % 25 == 0:
