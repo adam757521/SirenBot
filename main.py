@@ -14,7 +14,6 @@ import collections
 bot = commands.Bot(command_prefix="?", intents=discord.Intents.all())
 bot.remove_command('help')
 last_sent_timestamp = time.time()
-database = sqlite3.connect("data/database.db")
 
 
 def convert_date(date):
@@ -54,7 +53,7 @@ async def handle_sirens():
         )
 
         for guild in bot.guilds:
-            cursor = database.cursor()
+            cursor = bot.sqlite.cursor()
 
             sql = "SELECT siren_channel FROM main WHERE guild_id = ?"
             values = (guild.id,)
@@ -80,7 +79,7 @@ def get_token():
 
 
 def setup(guild_id):
-    cursor = database.cursor()
+    cursor = bot.sqlite.cursor()
 
     sql = "SELECT guild_id FROM main WHERE guild_id = ?"
     values = (guild_id,)
@@ -93,7 +92,7 @@ def setup(guild_id):
         values = (guild_id, None)
 
         cursor.execute(sql, values)
-        database.commit()
+        bot.sqlite.commit()
 
     cursor.close()
 
@@ -106,6 +105,7 @@ async def on_ready():
     print("----------------------------")
 
     bot.uptime = time.time()
+    bot.sqlite = sqlite3.connect("data/database.db")
 
     handle_sirens.start()
     change_presence.start()
@@ -279,14 +279,14 @@ async def help(ctx):
 async def setsiren(ctx, channel: discord.TextChannel = None):
     channel = channel if channel is not None else ctx.channel
 
-    cursor = database.cursor()
+    cursor = bot.sqlite.cursor()
 
     sql = "UPDATE main SET siren_channel = ? WHERE guild_id = ?"
     values = (channel.id, ctx.guild.id)
 
     cursor.execute(sql, values)
     cursor.close()
-    database.commit()
+    bot.sqlite.commit()
 
     embed = discord.Embed(
         title="Success!",
@@ -300,7 +300,7 @@ async def setsiren(ctx, channel: discord.TextChannel = None):
 @bot.command()
 @commands.guild_only()
 async def settings(ctx):
-    cursor = database.cursor()
+    cursor = bot.sqlite.cursor()
 
     sql = "SELECT siren_channel FROM main WHERE guild_id = ?"
     values = (ctx.guild.id,)
@@ -331,7 +331,7 @@ async def testsiren(ctx):
         color=0xff0000
     )
 
-    cursor = database.cursor()
+    cursor = bot.sqlite.cursor()
 
     sql = "SELECT siren_channel FROM main WHERE guild_id = ?"
     values = (ctx.guild.id,)
