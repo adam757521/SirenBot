@@ -240,7 +240,7 @@ async def info(ctx):
 
     embed.add_field(
         name="📜 City With The Most Sirens (last 24 hours)",
-        value=f"**Name:** {siren_city[0]}, **Last Siren:** {last_siren_city['alertDate']}, **Number of Sirens:** {siren_city[1]}",
+        value=f"**Location:** {siren_city[0]}, **Last Siren:** {last_siren_city['alertDate']}, **Number of Sirens:** {siren_city[1]}",
         inline=False
     )
 
@@ -402,7 +402,7 @@ async def history(ctx, *, city=None):
         embed_index = 0
         for index, siren in enumerate(updated_json):
             embeds[embed_index].add_field(name=f"**{index + 1}.**",
-                                          value=f"Date: {siren['alertDate']}, Name: {siren['data']}",
+                                          value=f"Date: {siren['alertDate']}, Location: {siren['data']}",
                                           inline=False)
 
             if (index + 1) % 25 == 0:
