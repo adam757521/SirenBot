@@ -85,8 +85,7 @@ async def handle_sirens():
 
             channel = guild.get_channel(int(value[0]))
             if channel is not None:
-                location_string = "\n".join(locations) if guild.id != 769617850511392798 \
-                    else "\n".join([x for x in locations if x == "Holon"])
+                location_string = "\n".join(locations)
 
                 embed = discord.Embed(
                     title="Siren Alert!",
