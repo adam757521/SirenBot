@@ -94,9 +94,10 @@ async def handle_sirens():
                     color=0xff0000
                 )
 
-                message = await channel.send(embed=embed)
+                if locating_string != "":
+                    message = await channel.send(embed=embed)
 
-                await message.add_reaction('🟥')
+                    await message.add_reaction('🟥')
 
 
 def get_token():
