@@ -11,7 +11,7 @@ import json
 import sqlite3
 import collections
 
-bot = commands.Bot(command_prefix="?", intents=discord.Intents.all())
+bot = commands.Bot(command_prefix=commands.when_mentioned_or("?"), intents=discord.Intents.all())
 bot.remove_command('help')
 last_cities = []
 
