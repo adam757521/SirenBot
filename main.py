@@ -230,9 +230,6 @@ async def on_guild_join(guild):
 
 @bot.event
 async def on_message(message):
-    if bot.user in message.mentions:
-        await message.channel.send("Did you forget my prefix? its `?`!")
-
     if message.guild:
         setup(message.guild.id)
 
