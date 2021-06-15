@@ -31,7 +31,8 @@ async def get_sirens_translated():
     async with aiohttp.ClientSession() as requester:
         resp = await requester.get("https://www.oref.org.il/WarningMessages/History/AlertsHistory.json")
 
-        return [{**x, **find_location_data(x['data'])[0]} for x in await resp.json()]
+        response_json = await resp.json()
+        return [{**x, **find_location_data(x['data'])[0]} for x in response_json] if response_json else []
 
 
 async def get_current_sirens():
@@ -245,29 +246,34 @@ async def info(ctx):
 
     siren_json = await get_sirens_translated()
 
-    most_siren_city = collections.Counter([x["name_en"] for x in siren_json]).most_common()[0]
-    last_siren_city_most = [x for x in siren_json if x["name_en"] == most_siren_city[0]][0]
+    most_siren_city = None
+    last_siren_city_most = None
+
+    if siren_json:
+        most_siren_city = collections.Counter([x["name_en"] for x in siren_json]).most_common()[0]
+        last_siren_city_most = [x for x in siren_json if x["name_en"] == most_siren_city[0]][0]
 
     uptime = datetime.fromtimestamp(bot.uptime).strftime("%Y-%m-%d, %H:%M:%S")
 
     embed.add_field(
-        name="⏲️ SirenBot Uptime",
+        name="⏲ SirenBot Uptime",
         value=f"**SirenBot Has Been Up Since:** {uptime}",
         inline=False
     )
 
     embed.add_field(
         name="🚨 Last Siren",
-        value=f"**Date:** {siren_json[0]['alertDate']}, **Location:** {siren_json[0]['name_en']}",
+        value=f"**Date:** {siren_json[0]['alertDate']}, **Location:** {siren_json[0]['name_en']}" if siren_json else "There were no sirens in the last 24 hours.",
         inline=False
     )
 
-    embed.add_field(
-        name="📜 City With The Most Sirens (last 24 hours)",
-        value=f"**Location:** {last_siren_city_most['name_en']}, "
-              f"**Last Siren:** {last_siren_city_most['alertDate']}, **Number of Sirens:** {most_siren_city[1]}",
-        inline=False
-    )
+    if last_siren_city_most is not None and most_siren_city is not None:
+        embed.add_field(
+            name="📜 City With The Most Sirens (last 24 hours)",
+            value=f"**Location:** {last_siren_city_most['name_en']}, "
+                  f"**Last Siren:** {last_siren_city_most['alertDate']}, **Number of Sirens:** {most_siren_city[1]}",
+            inline=False
+        )
 
     embed.add_field(
         name="🚀 Number of Sirens (last 24 hours)",
