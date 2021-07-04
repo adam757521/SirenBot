@@ -1,4 +1,4 @@
-NitroGenerator
+SirenBot
 ==========
 
 A discord bot written in python that sends rocket alerts. 
