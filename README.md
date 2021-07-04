@@ -21,5 +21,6 @@ TODO
 -------------
 - Add certian city alerts.
 - Add custom configuration and tweaks.
+- Use discord-super-utils.
 
 ### `If you like this project, please consider giving it a star! <3` ###
