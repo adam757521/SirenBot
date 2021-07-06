@@ -404,7 +404,7 @@ async def testsiren(ctx):
 
 @bot.command()
 async def updateandrestart(ctx):
-    if ctx.author.id == 720149174468870205:
+    if ctx.author.id == 0:  # put your id here, will add config for this.
         await ctx.send("Bot updating...")
         os.system('git pull origin main')
         await ctx.send("Bot restarting...")
