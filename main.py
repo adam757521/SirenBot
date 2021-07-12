@@ -1,5 +1,4 @@
 import asyncio
-import os
 import random
 import time
 from datetime import datetime, timedelta
@@ -10,10 +9,10 @@ from discord.ext import commands, tasks
 import json
 import sqlite3
 import collections
+import subprocess
 
 bot = commands.Bot(command_prefix=commands.when_mentioned_or("?"), intents=discord.Intents.all())
 bot.remove_command('help')
-last_cities = []
 
 with open('data/cities.json', encoding='utf-8-sig') as file:
     cities_data = json.load(file)
@@ -55,16 +54,14 @@ async def change_presence():
 
 @tasks.loop(seconds=2)
 async def handle_sirens():
-    global last_cities
-
     website_content = await get_current_sirens()
     filtered_cities = []
     if website_content != "":
         cities = json.loads(website_content)["data"]
-        filtered_cities = [city for city in cities if city not in last_cities]
-        last_cities = cities
+        filtered_cities = [city for city in cities if city not in bot.last_cities]
+        bot.last_cities = cities
     else:
-        last_cities = []
+        bot.last_cities = []
 
     if filtered_cities:
         updated_json = [find_location_data(x)[0] for x in filtered_cities]
@@ -132,6 +129,7 @@ async def on_ready():
 
     bot.uptime = time.time()
     bot.sqlite = sqlite3.connect("data/database.db")
+    bot.last_cities = []
 
     handle_sirens.start()
     change_presence.start()
@@ -277,15 +275,15 @@ async def info(ctx):
 
     embed.add_field(
         name="🚀 Number of Sirens (last 24 hours)",
-        value=len(siren_json),
+        value=str(len(siren_json)),
         inline=False
     )
 
     await ctx.send(embed=embed)
 
 
-@bot.command()
-async def help(ctx):
+@bot.command(name='help')
+async def _help(ctx):
     embed = discord.Embed(
         title="List of commands | SirenBot",
         description="List of usable commands.",
@@ -404,9 +402,9 @@ async def testsiren(ctx):
 
 @bot.command()
 async def updateandrestart(ctx):
-    if ctx.author.id == 720149174468870205:
+    if ctx.author.id is ...:
         await ctx.send("Bot updating...")
-        os.system('git pull origin main')
+        subprocess.call('git pull origin main', shell=False)
         await ctx.send("Bot restarting...")
 
         await bot.change_presence(status=discord.Status.offline)
