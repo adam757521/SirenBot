@@ -401,10 +401,8 @@ async def testsiren(ctx):
 
 
 @bot.command()
-async def updateandrestart(ctx):
+async def restart(ctx):
     if ctx.author.id is ...:
-        await ctx.send("Bot updating...")
-        subprocess.call('git pull origin main', shell=False)
         await ctx.send("Bot restarting...")
 
         await bot.change_presence(status=discord.Status.offline)
